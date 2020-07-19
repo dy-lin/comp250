@@ -1,0 +1,294 @@
+*all questions are done in pseudocode since it was never specified in the instructions to have to be actual Java code. Describe an algorithm = pseudocode.
+
+Question One
+
+Part A:
+public static void sums(int i, double max, int n, double elem1, double elem2);
+j=1;
+if i == 0
+	sum1 = S[i] + S[i+j];
+	temp1 = S[i]
+	temp2 = S[i+j]
+	j++;
+	sum2 = S[i] + S[i+j];
+	temp3 = S[i]
+	temp4 = S[i+j]
+	j++;
+	max = Math.max(sum1, sum2)
+	if max == sum1
+		elem1 = temp1;
+		elem2 = temp2;
+	end if
+	if max == sum2
+		elem1 = temp3;
+		elem2 = temp4;
+	end if
+else
+	for j to n-2
+		temp = s[i] + S[i+j];
+		max = Math.max(max,temp);
+		if max == temp
+			elem1 = S[i]
+			elem2 = S[i+j]
+		end if
+	end for
+	i++;
+	if i < n-1
+		sums(i, m, n, elem1, elem2);
+	else
+		Systems.out.println(elem1 + “ “ + elem2);
+	end if
+end if
+
+//everything except the for loop are in constant time so the run time is Θ(n)
+
+Part B:
+public static void sums(int i, double min, int n, double elem1, double elem2);
+j=1;
+if i == 0
+	sum1 = S[i] + S[i+j];
+	temp1 = S[i]
+	temp2 = S[i+j]
+	j++;
+	sum2 = S[i] + S[i+j];
+	temp3 = S[i]
+	temp4 = S[i+j]
+	j++;
+	min = Math.min(sum1, sum2)
+	if min == sum1
+		elem1 = temp1;
+		elem2 = temp2;
+	end if
+	if min == sum2
+		elem1 = temp3;
+		elem2 = temp4;
+	end if
+else
+	for j to n-2
+		temp = s[i] + S[i+j];
+		min = Math.min(min,temp);
+		if min == temp
+			elem1 = S[i]
+			elem2 = S[i+j]
+	end for
+	i++;
+	if i < n-1
+		sums(i, min, n, elem1, elem2);
+	else
+		Systems.out.println(elem1 + “ “ + elem2);
+	end if
+end if
+
+//everything except the for loop are in constant time so the run time is Θ(n)
+
+Part C:
+public static void diffs(int i, double max, int n, double elem1, double elem2);
+j=1;
+if i == 0
+	diff1 = Math.abs(S[i] - S[i+j]);
+	temp1 = S[i]
+	temp2 = S[i+j]
+	j++;
+	diff2 = Math.abs(S[i] - S[i+j]);
+	temp3 = S[i]
+	temp4 = S[i+j]
+	j++;
+	max = Math.max(diff1, diff2)
+	if min == diff1
+		elem1 = temp1;
+		elem2 = temp2;
+	end if
+	if min == diff2
+		elem1 = temp3;
+		elem2 = temp4;
+	end if
+else
+	for j to n-2
+		temp = Math.abs(s[i] - S[i+j]);
+		max = Math.max(max,temp);
+		if max == temp
+			elem1 = S[i]
+			elem2 = S[i+j]
+		end if
+	end for
+	i++;
+	if i < n-1
+		diffs(i, min, n, elem1, elem2);
+	else
+		Systems.out.println(elem1 + “ “ + elem2);
+	end if
+end if
+
+//run time for my own algorithm is Θ(n), due to one for loop
+
+Part D:
+mergesort(S);
+diff1 = abs(S[i] - S[i+1]);
+temp1 = S[i]
+temp2 = S[i+1]
+i++;
+diff2 = abs(S[i] - S[i+1]);
+temp3 = S[i]
+temp4 = S[i+1]
+i++;
+min = Math.min(diff1,diff2);
+if min == diff 1
+	elem1 = temp1;
+	elem2 = temp2;
+end if
+if min == diff2
+	elem1 = temp3;
+	elem2 = temp4;
+for i to n-2
+	diff3 = abs(S[i] - S[i+1]);
+	min = Math.min(min, diff3);
+	if min == diff3
+		elem1 = S[i];
+		elem2 = S[i+1];
+	end if
+end for
+System.out.println(elem1 + elem2);
+
+//uses mergesort, so Master Theorem dictates that runtime is Θ(n log n).
+
+Part E:
+mergesort(S);
+boolean answer = false;
+int i = n-1;
+int j = n-2;
+while (i < n)
+	if (S[i] - S[j] == x)
+		answer = true;
+		break;
+	end if
+	if (S[i] - S[j] < x)
+		j—;
+	end if
+	if (S[i] - S[j] > x)
+		i—;
+		if (i-1 == j)
+			i—:
+	end if
+end while
+return answer;
+
+//uses mergesort, so Master Theorem dictates that runtime is Θ(n log n).
+
+
+Part F:
+mergesort(S);
+boolean answer = false;
+int i = 1;
+int j = 0;
+while (i < n)
+	if (S[i] - S[j] == x)
+		answer = true;
+		break;
+	end if
+	if (S[i] - S[j] < x)
+		i++;
+	end if
+	if (S[i] - S[j] > x)
+		j++;
+		if (j+1 == i)
+			i++:
+	end if
+end while
+return answer;
+
+//uses mergesort, so Master Theorem dictates that runtime is Θ(n log n).
+
+Part G:
+mergesort(S);
+boolean answer = false;
+int i = 1;
+int j = 0;
+while (i < n)
+	if (S[i] - S[j] <= x)
+		i++;
+		answer = true;
+		break;
+	end if
+	if (S[i] - S[j] > x)
+		j++;
+		if (j+1 == i)
+			i++:
+	end if
+end while
+return answer;
+
+//uses mergesort, so Master Theorem dictates that runtime is Θ(n log n).
+
+Question Two
+
+p / 64 = number of 64-bit segments
+
+74207281/64 = 1159489 64-bit segments
+
+M_p = 2^p -1
+S_(p-2) = 0
+S_k = ((S_(k-1))^2-2) % M_p
+
+S_0 = 4, k>0
+
+Grade School Multiplication Recurrence Solution: O(n^2)
+
+- in this algorithm, there are 7 multiplications and 8 additions 
+	- squared = 49 multiplications and 64 additions
+	- minus two = 49 multiplications and 66 additions
+	- modulo = 50 multiplications and 66 additions
+	- 49th Mersenne number = 49* (50 multiplications and 66 additions) recursions until base case
+	- 49*(50 multiplications and 66 additions)
+	- 49*(50 multiplications)*1159489^2 = 3.293816116e15
+	- 49*(66 additions)*1159489^2 = 4.347837273e15
+- to compute one Sk we need 3.293816116e15 64-bit multiplications and 4.347837273e15 64-bit additions
+	- 1.5*3.293816116e15 = 4.940724174e15 nanoseconds for multiplication
+	- 0.5*4.347837273e15 = 2.173918637e15 nanoseconds for addition
+	- total runtime: 7.114642811e15 nanoseconds or ~83 days
+
+Karatsuba Recurrence Solution: O(n^1.585)
+
+- in this algorithm, there are 3 multiplications and 4 additions
+	- squared = 9 multiplications and 16 additions
+	- minus two = 9 multiplications and 18 additions
+	- modulo = 10 multiplications and 18 additions
+	- 49th Mersenne number = 49* (10 multiplications and 18 additions) recursions until base case
+	- 49*(10 multiplications)*1159489^1.585 = 2.004742942e12
+	- 49*(18 additions)*1159489^1.585 = 3.608537295e12
+- to compute one Sk we need 2.004742942e12 64-bit multiplications and 3.608537295e12 64-bit additions
+	- 1.5*2.004742942e12 = 3.007114413e12
+	- 0.5*3.608537295e12 = 1.804268648e12
+	- total runtime: 4.811383061e12 nanoseconds or ~1.3 hours
+
+
+The total running-time would be roughly 7.641653389e15 nano-seconds using grade school multiplication and roughly 4.811383061e12 nano-seconds using Karatsuba multiplication.
+
+Question Three
+
+O(i log^(2) i) = Case 2, where log_b (a) = 1, and k=1, 
+so a=2 and b=2 (a and b must be equal for kog_b (a) = 1.
+
+- where T(n) = aT(n/b) + f(n), f(n) = n^(log_b (a))*log^(k) n)
+
+public static int question3(ArrayList<Integer> A, int i) {
+	//int i = counter for recursion
+	int temp = 0; 
+	if (i==0) {
+		A.add(a);
+	} else {
+		mergesort(A);
+		temp = binarysort(A, a, 0, A.size()-1);
+		if (temp == -1) {
+			i++;
+			A.add(a);
+			question3(A, i);
+		} else {
+			A.add(a); //really an optional step, since we already know that it is in the ArrayList
+			return temp;
+	}
+}
+
+mergesort = O(n log(n)) //from lecture
+binarysort = O(log(n))
+
+entire algorithm = O(n log^(2) n)
