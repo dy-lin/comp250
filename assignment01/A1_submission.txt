@@ -1,0 +1,229 @@
+			//please import java.util.ArrayList!
+			//collaborators: Deboleena Mazumdar, Emma Goune, Anthony Courchesne, Steve Lee, Gabriel Gefter 
+			//my division algorithm was working the entire time until the end so I had no time to debug it
+			//something to do with the recursion, it doesn't always work properly
+			//sorry for the copy and paste comments I know some won't make sense.
+			public Number convert(Number A, short Base) {
+				ArrayList<Short> remainderInt = new ArrayList<Short>();
+				//store original base given in base 10 for later in case
+				short originalBase = Base;
+				if (Base > A.Base) {
+					Base = A.baseTenToOther(Base, originalBase, A);
+				}
+				//this number C is the remainder ArrayList
+				Number C = new Number();
+				//separate helper method for long Division due to use of recursion
+				remainderInt = A.longDivisionInt(A, Base, remainderInt, originalBase);
+				C.Base = originalBase;
+				short[] remainder = new short[remainderInt.size()];
+				//transfer ArrayList back to short[]
+				for (int i = remainderInt.size()-1; i >= 0; i--) {
+					remainder[i] = remainderInt.get(i);
+				}
+				C.Int = remainder;
+				Number Z = new Number();
+				Z.Int = new short[A.NonRep.length+1];
+				Z.Int[Z.Int.length-1] = 1;
+				Z.NonRep = new short[0];
+				Z.Rep = new short[0];
+				ArrayList<Short> Q = new ArrayList<Short>();
+				//(Z)_B to (Q)_R
+				Q = Z.longDivisionInt(Z, Base, Q, originalBase);
+				short[] newQ = new short[Q.size()];
+				for (int i = Q.size()-1; i >= 0; i--) {
+					newQ[i] = Q.get(i);
+				}
+				//converted (Q)_R array into a short so it can be used as a divisor
+				short newerQ = Z.arraytoShort(newQ, originalBase);
+				
+				ArrayList<Short> remainderUW = new ArrayList<Short>(); 
+				remainderUW = A.longDivisionUW(C, newerQ, originalBase);
+				short[] UW = new short[remainderUW.size()];
+				//change ArrayList into an array
+				for (int i = remainderUW.size()-1; i >=0; i-- ) {
+					UW[i] = remainderUW.get(i);
+				}
+			
+				for (int i = UW.length-1; i >=0; i--) {
+					for (int j = 0; j < UW.length; j++) {
+						if (UW[i] == UW[j]) {
+							C.NonRep = new short[j-0];
+							for (int h = j-1; h >=0; h--) {
+								int m=1;
+								C.NonRep[C.Int.length-m] = UW[h];
+								m++;
+							}
+							C.Rep = new short[UW.length-j+1];
+							for (int h = j; h < UW.length; h++) {
+								int m = 1;
+								C.Rep[C.Rep.length-m] = UW[h];
+								m++;
+							}
+						}
+						
+					}
+				}
+				return C;
+			}
+			public ArrayList<Short> longDivisionInt(Number A, short Base, ArrayList<Short> remainderInt, short originalBase) {
+				Number B = new Number(); //quotients
+				if (A.Int.length == 1) {
+					B.Int = new short[A.Int.length];
+				} else {
+					B.Int = new short[A.Int.length-1];
+				}
+				short remainder = 0;
+				short temp = 0;
+				short currentDigit = 0;
+				short newRemainder = 0;
+				//first digit
+				remainder = (short) (A.Int[A.Int.length-1]%Base);
+				short j = 1;
+				short k = 1;
+				if (remainder == A.Int[A.Int.length-j]) {
+					for (j =1; j <= A.Int.length; j++) {
+						if (j==1) {
+							temp = (short) (A.Int[A.Int.length-j]);
+						}
+						//adjusting the divisor to go into next biggest dividend
+						temp *= 10;
+						if (j != A.Int.length) {
+							temp += (short) (A.Int[A.Int.length-j-1]);
+						}
+						remainder = (short) (temp%Base);
+						if (j-1 == A.Int.length) {
+							for (short n =0; n < A.Int.length; n++) {
+								//change remainder into the correct base
+								newRemainder += A.Int[n]*Math.pow(A.Base, n);
+							}
+							//add to U digit
+							remainderInt.add(newRemainder);
+							break;
+						}
+			
+						if (remainder != temp) {
+							//store quotient (next X)
+							B.Int[B.Int.length-k] = (short) (temp/Base);
+							remainderInt.add(remainder);
+							k++;
+							break;
+						}
+					}
+				}
+				if (A.Int.length == 1) {
+					remainderInt.add(remainder);
+				}
+				if (A.Int.length > 1 && j-1 != A.Int.length) {
+					for (short i=(short) (j+2); i <= A.Int.length; i++) {
+						currentDigit = A.Int[A.Int.length-i];
+						temp = (short) (remainder*10 + currentDigit);
+						B.Int[(B.Int.length-k)] = (short) (temp/Base);
+						k++;
+						
+						remainder = (short) (temp%Base);
+						if (i == A.Int.length) {
+							ArrayList<Short> digits = B.getDigits(remainder);
+							newRemainder = 0;
+							for (short m = 0; m < digits.size(); m++) {
+								newRemainder += (short) (digits.get(m)*Math.pow(A.Base, m));
+							}
+							remainderInt.add(newRemainder);
+						}
+					}
+				}
+				//for when X=0
+				if (B.Int.length !=1 || B.Int[0] != 0) {
+					Number D = new Number();
+					D.Int = new short[B.Int.length];
+					for (int i=0; i < B.Int.length; i++) {
+						D.Int[i] = B.Int[i];
+					}
+					D.Base = A.Base;
+					return B.longDivisionInt(D, Base, remainderInt, originalBase);
+				 }
+				return remainderInt;
+			}
+
+			public ArrayList<Short> getDigits(short number) {
+				ArrayList<Short> digits = new ArrayList<Short>();
+				while (number > 0) {
+					digits.add((short) (number%10));
+					number /= 10;
+				}
+				return digits;
+
+			}
+			public ArrayList<Short> longDivisionUW(Number A, short Base, short originalBase) {
+				Number B = new Number(); //quotients
+				short lengthofBase = (short) (Math.log10(Base)+1);
+				short diffLength = (short) (A.Int.length-lengthofBase);
+				ArrayList<Short> UW = new ArrayList<Short>();
+				if (A.Int.length == 1) {
+					B.Int = new short[A.Int.length];
+				} else if(diffLength >= 0) {
+					B.Int = new short[diffLength+1]; 
+				} else {
+					B.Int = new short[1];
+				}
+				
+				short remainder = 0;
+				short temp = 0;
+				short currentDigit = 0;
+				//I can't figure out why my division algorithm doesn't work for 
+				// e.g. 1000 / 101 --> it always yields 0 for the remainder'
+				//then I can't divide by it because you can't divide by 0
+				try {
+					remainder = (short) (A.Int[A.Int.length-1]%Base);
+				} catch (ArithmeticException e) {
+					System.out.println("arithmetic exception");
+				} 
+			
+				UW.add(remainder);
+				short j = 1;
+				short k = 1;
+				if (remainder == A.Int[A.Int.length-j]) {
+					for (j =1; j <= A.Int.length; j++) {
+						if (j==1) {
+							temp = (short) (A.Int[A.Int.length-j]);
+						}
+						//adjusting the divisor to go into next biggest dividend
+						temp *= 10;
+						if (j != A.Int.length) {
+							temp += (short) (A.Int[A.Int.length-j-1]);
+						}
+						remainder = (short) (temp%Base);
+						UW.add(remainder);
+						if (j == A.Int.length-1) {
+							break;
+						}
+			
+						if (remainder != temp) {
+							//store quotient (next X)
+							B.Int[B.Int.length-k] = (short) (temp/Base);
+							k++;
+							break;
+						}
+					}
+				}
+				if (A.Int.length > 1) {
+					for (short i=(short) (j+2); i <= A.Int.length; i++) {
+						currentDigit = A.Int[A.Int.length-i];
+						temp = (short) (remainder*10 + currentDigit);
+						B.Int[(B.Int.length-k)] = (short) (temp/Base);
+						k++;
+						remainder = (short) (temp%Base);
+						UW.add(remainder);
+						
+						}
+					}
+				return UW;
+			}
+			
+			public short arraytoShort(short[] array, short originalBase) {
+				short num = 0;
+				for (int i=0; i < array.length; i++) {
+					num += array[i]*Math.pow(10, i);
+				}
+				System.out.print(num);
+				return num;
+			}
