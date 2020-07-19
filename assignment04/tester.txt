@@ -1,0 +1,419 @@
+package conv;
+
+import java.util.ArrayList;
+
+public class tester {
+	
+	//custom Node class, could not implement Java default tree
+	 static class Node {
+		public boolean[] pattern;
+		public String path;
+		public Node child;
+		
+		//Node constructor
+		public Node(boolean[] pattern) {
+			this.pattern = new boolean[pattern.length];
+			for (int i = 0; i < pattern.length; i++) {
+				this.pattern[i] = pattern[i];
+			}
+		}
+	}
+	 
+	 static class HiRiQ {
+			//int is used to reduce storage to a minimum...
+			  public int config;
+			  public byte weight;
+
+			//initialize to one of 5 reachable START config n=0,1,2,3,4
+			HiRiQ(byte n) {
+			  if (n==0)
+			   {config=65536/2;weight=1;}
+			  else
+			    if (n==1)
+			     {config=1626;weight=6;}
+			    else
+			      if (n==2)
+			       {config=-1140868948; weight=10;}
+			      else
+			        if (n==3)
+			         {config=-411153748; weight=13;}
+			        else
+			         {config=-2147450879; weight=32;}
+			  }
+			
+			  boolean IsSolved() {
+				  return( (config==65536/2) && (weight==1) );
+			  }
+
+			//transforms the array of 33 booleans to an (int) cinfig and a (byte) weight.
+			  public void store(boolean[] B) {
+				  int a=1;
+				  config=0;
+				  weight=(byte) 0;
+				  if (B[0]) {weight++;}
+				  for (int i=1; i<32; i++)
+				   {
+				   if (B[i]) {config=config+a;weight++;}
+				   a=2*a;
+				   }
+				  if (B[32]) {config=-config;weight++;}
+			  }
+
+			//transform the int representation to an array of booleans.
+			//the weight (byte) is necessary because only 32 bits are memorized
+			//and so the 33rd is decided based on the fact that the config has the
+			//correct weight or not.
+			  public boolean[] load(boolean[] B) {
+				  byte count=0;
+				  int fig=config;
+				  B[32]=fig<0;
+				  if (B[32]) {fig=-fig;count++;}
+				  int a=2;
+				  for (int i=1; i<32; i++)
+				   {
+				   B[i]= fig%a>0;
+				   if (B[i]) {fig=fig-a/2;count++;}
+				   a=2*a;
+				   }
+				  B[0]= count<weight;
+				  return(B);
+			  }
+			  
+			//prints the int representation to an array of booleans.
+			//the weight (byte) is necessary because only 32 bits are memorized
+			//and so the 33rd is decided based on the fact that the config has the
+			//correct weight or not.
+			  public void printB(boolean Z) {
+				  if (Z) {System.out.print("[ ]");} else {System.out.print("[@]");}
+			  }
+			  
+			  public void print() {
+				  byte count=0;
+				  int fig=config;
+				  boolean next,last=fig<0;
+				  if (last) {fig=-fig;count++;}
+				  int a=2;
+				  for (int i=1; i<32; i++)
+				   {
+				   next= fig%a>0;
+				   if (next) {fig=fig-a/2;count++;}
+				   a=2*a;
+				   }
+				  next= count<weight;
+				  
+				  count=0;
+				  fig=config;
+				  if (last) {fig=-fig;count++;}
+				  a=2;
+
+				  System.out.print("      ") ; printB(next);
+				  for (int i=1; i<32; i++)
+				   {
+				   next= fig%a>0;
+				   if (next) {fig=fig-a/2;count++;}
+				   a=2*a;
+				   printB(next);
+				   if (i==2 || i==5 || i==12 || i==19 || i==26 || i==29) {System.out.println() ;}
+				   if (i==2 || i==26 || i==29) {System.out.print("      ") ;};
+				   }
+				   printB(last); System.out.println() ;
+
+			  }
+			}
+	 
+	// main method where Object is constructed/initialized 
+	public static void main(String[] args) {
+		boolean[] config = new boolean[33];
+		System.out.println(solve(config));
+	}
+	
+	// all children of a node (all possible substitutions)
+	public static ArrayList<Node> allChildren(Node n){
+		boolean[] original = new boolean[n.pattern.length];
+		for (int i = 0; i < original.length; i++) {
+			original[i] = n.pattern[i];
+		}
+		ArrayList<Node> choice = new ArrayList<Node>();
+		
+		// hardcoded vertical sets
+		int[] set1 = {2, 5, 10, 17, 24, 29, 32};
+		int[] set2 = {1, 4, 9, 16, 23, 28, 31};
+		int[] set3 = {0, 3, 8, 15, 22, 27, 30};
+		
+		int[] set4 = {11, 18, 25, 12, 19, 26};
+		int[] set5 = {6, 13, 20, 7, 14, 21};
+		
+		// hardcoded horizontal sets
+		int[] set6 = {0,1,2,3,4,5};
+	
+		int[] set7 =  {6,7,8,9,10,11,12};
+		int[] set8 = {13,14,15,16,17,18,19};
+		int[] set9 = {20,21,22,23,24,25,26};
+		
+		int[] set10 = {27,28,29,30,31,32};
+		
+		boolean[] tempPattern = new boolean[original.length];
+		for (int i=0; i <=4; i++) {
+			// copy original array into temp array to change since arrays are reference types
+			// that way original array is never actually changed
+			for (int j=0; j < tempPattern.length; j++) {
+				tempPattern[j] = original[j];
+			}
+			
+			// check for TTF and then change to FFT and backwards patterns FTT to TFF (W sub)
+			// check for FFT and then change to TTF and backwards patterns TFF to FTT (B sub)
+			if ((original[set1[i]] == true && original[set1[i+1]] == true && original[set1[i+2]] == false) || (original[set1[i]] == false && original[set1[i+1]] == true && original[set1[i+2]] == true) || (original[set1[i]] == false && original[set1[i+1]] == false && original[set1[i+2]] == true) || (original[set1[i]] == true && original[set1[i+1]] == false && original[set1[i+2]] == false)) {
+				tempPattern[set1[i]] = !original[set1[i]];
+				tempPattern[set1[i+1]] = !original[set1[i+1]];
+				tempPattern[set1[i+2]] = !original[set1[i+2]];
+				Node temp = new Node(tempPattern);
+				temp.path = i + "@" + (i+2);
+				choice.add(temp);
+			}
+			
+			// resets tempPattern to original for next comparison
+			for (int j=0; j < tempPattern.length; j++) {
+				tempPattern[j] = original[j];
+			}
+			// check for TTF and then change to FFT and backwards patterns FTT to TFF (W sub)
+			// check for FFT and then change to TTF and backwards patterns TFF to FTT (B sub)
+			if ((original[set2[i]] == true && original[set2[i+1]] == true && original[set2[i+2]] == false) || (original[set2[i]] == false && original[set2[i+1]] == true && original[set2[i+2]] == true) || (original[set2[i]] == false && original[set2[i+1]] == false && original[set2[i+2]] == true) || (original[set2[i]] == true && original[set2[i+1]] == false && original[set2[i+2]] == false)) {
+				tempPattern[set2[i]] = !original[set2[i]];
+				tempPattern[set2[i+1]] = !original[set2[i+1]];
+				tempPattern[set2[i+2]] = !original[set2[i+2]];
+				Node temp = new Node(tempPattern);
+				temp.path = i + "@" + (i+2);
+				choice.add(temp);
+			}
+			// resets tempPattern to original for next comparison
+			for (int j=0; j < tempPattern.length; j++) {
+				tempPattern[j] = original[j];
+			}
+			// check for TTF and then change to FFT and backwards patterns FTT to TFF (W sub)
+			// check for FFT and then change to TTF and backwards patterns TFF to FTT (B sub)
+			if ((original[set3[i]] == true && original[set3[i+1]] == true && original[set3[i+2]] == false) || (original[set3[i]] == false && original[set3[i+1]] == true && original[set3[i+2]] == true) || (original[set3[i]] == false && original[set3[i+1]] == false && original[set3[i+2]] == true) || (original[set3[i]] == true && original[set3[i+1]] == false && original[set3[i+2]] == false)) {
+				tempPattern[set3[i]] = !original[set3[i]];
+				tempPattern[set3[i+1]] = !original[set3[i+1]];
+				tempPattern[set3[i+2]] = !original[set3[i+2]];
+				Node temp = new Node(tempPattern);
+				temp.path = i + "@" + (i+2);
+				choice.add(temp);
+			}
+			// resets tempPattern to original for next comparison
+			for (int j=0; j < tempPattern.length; j++) {
+				tempPattern[j] = original[j];
+			}
+			// check for TTF and then change to FFT and backwards patterns FTT to TFF (W sub)
+			// check for FFT and then change to TTF and backwards patterns TFF to FTT (B sub)
+			if ((original[set7[i]] == true && original[set7[i+1]] == true && original[set7[i+2]] == false) || (original[set7[i]] == false && original[set7[i+1]] == true && original[set7[i+2]] == true) || (original[set7[i]] == false && original[set7[i+1]] == false && original[set7[i+2]] == true) || (original[set7[i]] == true && original[set7[i+1]] == false && original[set7[i+2]] == false)) {
+				tempPattern[set7[i]] = !original[set7[i]];
+				tempPattern[set7[i+1]] = !original[set7[i+1]];
+				tempPattern[set7[i+2]] = !original[set7[i+2]];
+				Node temp = new Node(tempPattern);
+				temp.path = i + "@" + (i+2);
+				choice.add(temp);
+			}
+			// resets tempPattern to original for next comparison
+			for (int j=0; j < tempPattern.length; j++) {
+				tempPattern[j] = original[j];
+			}
+			// check for TTF and then change to FFT and backwards patterns FTT to TFF (W sub)
+			// check for FFT and then change to TTF and backwards patterns TFF to FTT (B sub)
+			if ((original[set8[i]] == true && original[set8[i+1]] == true && original[set8[i+2]] == false) || (original[set8[i]] == false && original[set8[i+1]] == true && original[set8[i+2]] == true) || (original[set8[i]] == false && original[set8[i+1]] == false && original[set8[i+2]] == true) || (original[set8[i]] == true && original[set8[i+1]] == false && original[set8[i+2]] == false)) {
+				tempPattern[set8[i]] = !original[set8[i]];
+				tempPattern[set8[i+1]] = !original[set8[i+1]];
+				tempPattern[set8[i+2]] = !original[set8[i+2]];
+				Node temp = new Node(tempPattern);
+				temp.path = i + "@" + (i+2);
+				choice.add(temp);
+			}
+			// resets tempPattern to original for next comparison
+			for (int j=0; j < tempPattern.length; j++) {
+				tempPattern[j] = original[j];
+			}
+			// check for TTF and then change to FFT and backwards patterns FTT to TFF (W sub)
+			// check for FFT and then change to TTF and backwards patterns TFF to FTT (B sub)
+			if ((original[set9[i]] == true && original[set9[i+1]] == true && original[set9[i+2]] == false) || (original[set9[i]] == false && original[set9[i+1]] == true && original[set9[i+2]] == true) || (original[set9[i]] == false && original[set9[i+1]] == false && original[set9[i+2]] == true) || (original[set9[i]] == true && original[set9[i+1]] == false && original[set9[i+2]] == false)) {
+				tempPattern[set9[i]] = !original[set9[i]];
+				tempPattern[set9[i+1]] = !original[set9[i+1]];
+				tempPattern[set9[i+2]] = !original[set9[i+2]];
+				Node temp = new Node(tempPattern);
+				temp.path = i + "@" + (i+2);
+				choice.add(temp);
+			}
+		}
+		for (int i=0; i <=3; i=i+3) {
+			// resets tempPattern to original for next comparison
+			for (int j=0; j < tempPattern.length; j++) {
+				tempPattern[j] = original[j];
+			}
+			// check for TTF and then change to FFT and backwards patterns FTT to TFF (W sub)
+			// check for FFT and then change to TTF and backwards patterns TFF to FTT (B sub)
+			if ((original[set4[i]] == true && original[set4[i+1]] == true && original[set4[i+2]] == false) || (original[set4[i]] == false && original[set4[i+1]] == true && original[set4[i+2]] == true) || (original[set4[i]] == false && original[set4[i+1]] == false && original[set4[i+2]] == true) || (original[set4[i]] == true && original[set4[i+1]] == false && original[set4[i+2]] == false)) {
+				tempPattern[set4[i]] = !original[set4[i]];
+				tempPattern[set4[i+1]] = !original[set4[i+1]];
+				tempPattern[set4[i+2]] = !original[set4[i+2]];
+				Node temp = new Node(tempPattern);
+				temp.path = i + "@" + (i+2);
+				choice.add(temp);
+			}
+			// resets tempPattern to original for next comparison
+			for (int j=0; j < tempPattern.length; j++) {
+				tempPattern[j] = original[j];
+			}
+			// check for TTF and then change to FFT and backwards patterns FTT to TFF (W sub)
+			// check for FFT and then change to TTF and backwards patterns TFF to FTT (B sub)
+			if ((original[set5[i]] == true && original[set5[i+1]] == true && original[set5[i+2]] == false) || (original[set5[i]] == false && original[set5[i+1]] == true && original[set5[i+2]] == true) || (original[set5[i]] == false && original[set5[i+1]] == false && original[set5[i+2]] == true) || (original[set5[i]] == true && original[set5[i+1]] == false && original[set5[i+2]] == false)) {
+				tempPattern[set5[i]] = !original[set5[i]];
+				tempPattern[set5[i+1]] = !original[set5[i+1]];
+				tempPattern[set5[i+2]] = !original[set5[i+2]];
+				Node temp = new Node(tempPattern);
+				temp.path = i + "@" + (i+2);
+				choice.add(temp);
+			}
+			// resets tempPattern to original for next comparison
+			for (int j=0; j < tempPattern.length; j++) {
+				tempPattern[j] = original[j];
+			}
+			// check for TTF and then change to FFT and backwards patterns FTT to TFF (W sub)
+			// check for FFT and then change to TTF and backwards patterns TFF to FTT (B sub)
+			if ((original[set6[i]] == true && original[set6[i+1]] == true && original[set6[i+2]] == false) || (original[set6[i]] == false && original[set6[i+1]] == true && original[set6[i+2]] == true) || (original[set6[i]] == false && original[set6[i+1]] == false && original[set6[i+2]] == true) || (original[set6[i]] == true && original[set6[i+1]] == false && original[set6[i+2]] == false)) {
+				tempPattern[set6[i]] = !original[set6[i]];
+				tempPattern[set6[i+1]] = !original[set6[i+1]];
+				tempPattern[set6[i+2]] = !original[set6[i+2]];
+				Node temp = new Node(tempPattern);
+				temp.path = i + "@" + (i+2);
+				choice.add(temp);
+			}
+			// resets tempPattern to original for next comparison
+			for (int j=0; j < tempPattern.length; j++) {
+				tempPattern[j] = original[j];
+			}
+			// check for TTF and then change to FFT and backwards patterns FTT to TFF (W sub)
+			// check for FFT and then change to TTF and backwards patterns TFF to FTT (B sub)
+			if ((original[set10[i]] == true && original[set10[i+1]] == true && original[set10[i+2]] == false) || (original[set10[i]] == false && original[set10[i+1]] == true && original[set10[i+2]] == true) || (original[set10[i]] == false && original[set10[i+1]] == false && original[set10[i+2]] == true) || (original[set10[i]] == true && original[set10[i+1]] == false && original[set10[i+2]] == false)) {
+				tempPattern[set10[i]] = !original[set10[i]];
+				tempPattern[set10[i+1]] = !original[set10[i+1]];
+				tempPattern[set10[i+2]] = !original[set10[i+2]];
+				Node temp = new Node(tempPattern);
+				temp.path = i + "@" + (i+2);
+				choice.add(temp);
+			}
+		}
+		
+		return choice;
+	}
+
+	
+	// method to choose which child to use for next step
+	// outputs Node that is used for recursion
+	public static Node choose(ArrayList<Node> children, Node root) {
+		boolean[] solution = solution();
+		int counter = 0;
+		int[] max = new int[children.size()];
+		for (int i = 0; i < children.size(); i++) {
+			for (int j = 0; j < 33; j++) {
+				// amount of same squares as the solution, the greater the better
+				// most same square becomes next Node to test
+				if (children.get(i).pattern[j] == solution[j]) {
+					counter++;
+				}
+			}
+			//i will correspond with each Node
+			max[i] = counter;
+			//reset counter for next Node
+			counter = 0;
+		}
+		//finds the index with the most number of same squares;
+		int biggest = findMax(max);
+		root.child = children.get(biggest);
+		return root.child;
+	}
+	
+	// find the index of the maximum count in an array
+	public static int findMax(int[] array) {
+		int index = 0;
+		for (int i = 0; i < array.length-1; i++) {
+			if (array[i] < array[i+1]) {
+				index = i+1;
+			}
+		}
+		return index;
+	}
+
+
+	// returns the string of steps to solution, takes in boolean[] because it must, but also needs ArrayList<Node> chosen
+	public static String steps(ArrayList<Node> chosen) {
+		String steps = ""; //concatenation of all steps taken
+		String step = ""; //single step of each from Node to Node
+		for (int i = 0; i < chosen.size(); i++) {
+			if (i == 0) {
+				steps = chosen.get(i).path;
+			} else {
+				step = chosen.get(i).path;
+				steps = " " + step;
+			}
+		}
+		return steps;
+	}
+	
+	// checks if input array is the same as solution, similar to isSolved but based on array instead of configs/weight
+	public static boolean equals(boolean[] input) {
+		boolean[] solution = solution();
+		boolean answer = true;
+		for (int i = 0; i < 33; i++) {
+			if(input[i] != solution[i]) {
+				answer = false;
+			}
+		}
+		return answer;
+	}
+	
+	//outputs the array that is the solution
+	public static boolean[] solution() {
+		boolean[] solution = new boolean[33];
+		for (int i=0; i < solution.length; i++) {
+			solution[i] = false;
+			if (i == 16) {
+				solution[i] = true;
+			}
+		}
+		return solution;
+	}
+	
+	//HERE IS MY METHOD
+	public static String solve(boolean[] config) {
+		HiRiQ W = new HiRiQ( (byte) 0);
+		boolean[] B = W.load(config);
+		Node root = new Node(B); 
+		
+		// use temp not to modify original root node
+		Node temp = new Node(B); 
+		ArrayList<Node> chosen = new ArrayList<Node>();
+		ArrayList<Node> children = new ArrayList<Node>();
+		int counter = 0;
+		
+		if (equals(B) == true) {
+			System.out.println("No steps taken.");
+		} else {
+			while (W.IsSolved() == false) {
+				// difference case for first time loop (e.g. for intialization)
+				if (counter == 0) {
+					children = allChildren(root);
+					temp = choose(children, root);
+					chosen.add(choose(children, root));
+					W.store(choose(children,root).pattern);
+				} else {
+					children = allChildren(temp);
+					temp = choose(children, temp);
+					chosen.add(choose(children, temp));
+					W.store(temp.pattern);
+				}
+				counter++;
+			}
+		}
+		String steps = steps(chosen);
+		return steps;
+	}
+}
+	
